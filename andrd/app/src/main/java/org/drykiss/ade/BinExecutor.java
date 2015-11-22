@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class BinExecutor {
     static String TAG = "binExecutor";
@@ -38,12 +39,13 @@ public class BinExecutor {
         }
     }
 
-    public Process executeBin(String binPath, boolean redirStderr) {
-        Log.d(TAG, "execute " + binPath);
+    public Process executeBin(List<String> cmd, boolean redirStderr) {
+        Log.d(TAG, "execute " + cmd);
 
-        File f = new File(binPath);
+        File f = new File(cmd.get(0));
         if (!f.exists()) {
-            Log.e(TAG, "file " + binPath + " not exist!");
+            Log.e(TAG, "file " + cmd.get(0) + " not exist!");
+            return null;
         }
 
         if (mProc != null) {
@@ -53,8 +55,8 @@ public class BinExecutor {
 
         try {
             ProcessBuilder pb = new ProcessBuilder();
-            pb.command(binPath);
-            Log.d(TAG, "start process with command " + binPath);
+            pb.command(cmd);
+            Log.d(TAG, "start process with command " + cmd.get(0));
             pb.redirectErrorStream(redirStderr);
             mProc = pb.start();
             Log.d(TAG, "goProcess started");
