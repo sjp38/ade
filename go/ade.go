@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -17,14 +18,15 @@ const (
 var (
 	ade_dir = "def_ade_dir"
 	ade_src_dir = "def_ade_src_dir"
+	adel = log.New(os.Stderr, "", log.Ltime | log.Lshortfile)
 )
 
 func list(args []string) {
-	fmt.Println("list called with... ", args)
-	fmt.Printf("list go programs in dir %s\n", ade_src_dir)
+	adel.Printf("list called with... %s\n", args)
+	adel.Printf("list go programs in dir %s\n", ade_src_dir)
 	files, err := ioutil.ReadDir(ade_src_dir)
 	if err != nil {
-		fmt.Printf("error while read dir %s: %s\n",
+		adel.Printf("error while read dir %s: %s\n",
 			ade_src_dir, err)
 	}
 	for _, f := range files {
@@ -38,15 +40,15 @@ func list(args []string) {
 }
 
 func load(args []string) {
-	fmt.Println("load called with... ", args)
+	adel.Printf("load called with... %s\n", args)
 	if len(args) < 1 {
-		fmt.Printf("no argument for load...\n")
-		fmt.Printf("%s\n", USAGE)
+		adel.Printf("no argument for load...\n")
+		adel.Printf("%s\n", USAGE)
 	}
 	file_path := path.Join(ade_src_dir, args[0])
 	src, err := ioutil.ReadFile(file_path)
 	if err != nil {
-		fmt.Printf("failed to read file: %s\n", file_path, err)
+		adel.Printf("failed to read file: %s\n", file_path, err)
 		return
 	}
 
@@ -54,15 +56,15 @@ func load(args []string) {
 }
 
 func save(args []string) {
-	fmt.Println("save called with...\n", args)
+	adel.Printf("save called with... %s\n", args)
 }
 
 func main() {
-	fmt.Println("ade is a development environment")
+	adel.Printf("ade is a development environment\n")
 	args := os.Args
 	if len(args) < 2 {
-		fmt.Println("no argument. do nothing")
-		fmt.Println("USAGE: ", USAGE)
+		adel.Println("no argument. do nothing")
+		adel.Println("USAGE: ", USAGE)
 		return
 	}
 	cmd := args[1]
@@ -81,5 +83,5 @@ func init() {
 	_, file, _, _ := runtime.Caller(1)
 	ade_dir = path.Dir(file)
 	ade_src_dir = path.Join(ade_dir, "src")
-	fmt.Printf("file: %s, src dir: %s", file, ade_src_dir)
+	adel.Printf("file: %s, src dir: %s", file, ade_src_dir)
 }
