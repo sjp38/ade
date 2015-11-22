@@ -167,17 +167,12 @@ public class ExecActivity extends AppCompatActivity {
                 super.handleMessage(msg);
             }
         };
-    }
 
-    @Override
-    protected void onStart() {
         Intent intent = getIntent();
         String cmd = intent.getStringExtra(EXTRA_CMD);
         executeAde();
 
         Log.d(TAG, "received command " + cmd);
-
-        super.onStart();
     }
 
     @Override
