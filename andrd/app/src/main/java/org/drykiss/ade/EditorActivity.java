@@ -111,7 +111,7 @@ public class EditorActivity extends AppCompatActivity {
                 }).create().show();
     }
 
-    private void doSave() {
+    private void syncTmpSrc() {
         String code = mSrcEdittext.getText().toString();
         try {
             PrintWriter out = new PrintWriter(TMP_SRC_PATH);
@@ -121,11 +121,16 @@ public class EditorActivity extends AppCompatActivity {
             Log.e(TAG, "Failed to write tmp file");
             finish();
         }
+    }
+
+    private void doSave() {
+        syncTmpSrc();
         String result = adeOutput(Arrays.asList(ADE_BIN_PATH, "save", mFilename), true);
         Log.d(TAG, result);
     }
 
     private void doRun() {
+        syncTmpSrc();
         Intent intent = new Intent(this, ExecActivity.class);
         intent.putExtra(ExecActivity.EXTRA_CMD, "run");
         startActivity(intent);

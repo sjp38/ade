@@ -53,7 +53,7 @@ public class ExecActivity extends AppCompatActivity {
         if (!f.exists()) {
             copyAdeGoBin();
         }
-        mProc = mExecutor.executeBin(Arrays.asList(ADE_BIN_PATH), true);
+        mProc = mExecutor.executeBin(Arrays.asList(ADE_BIN_PATH, "run"), true);
         new DisplayOutputThread(mHandler, ADE_BIN + "-stdout/err",
                 mProc.getInputStream())
                 .start();
