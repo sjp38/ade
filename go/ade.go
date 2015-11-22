@@ -5,9 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"runtime"
 	"strings"
+	"syscall"
 )
 
 const (
@@ -87,6 +89,28 @@ func remove(args []string) {
 	}
 }
 
+func run(args []string) {
+	shbin, err := exec.LookPath("sh")
+	if err != nil {
+		panic(err)
+	}
+	//goroot := "/home/sjpark/go"	for test on host
+	goroot := "/data/local/tmp/goroot"
+	//goroot := path.Join(ade_dir, "goroot")	for official version
+	gobin := path.Join(goroot, "bin/go")
+	tmpdir := ade_tmp_dir
+	cmd := fmt.Sprintf("sh -c \"GOROOT=%s TMPDIR=%s %s run %s\"",
+			goroot, tmpdir, gobin, ade_tmp_src)
+	cmd_slice := []string{"sh", "-c", cmd}
+	env := os.Environ()
+
+	err = syscall.Exec(shbin, cmd_slice, env)
+	if err != nil {
+		adel.Printf("failed to exec %s %s\n", shbin, cmd)
+		panic(err)
+	}
+}
+
 func main() {
 	adel.Printf("ade is a development environment\n")
 	args := os.Args
@@ -106,6 +130,8 @@ func main() {
 		save(args)
 	case "remove":
 		remove(args)
+	case "run":
+		run(args)
 	}
 }
 
