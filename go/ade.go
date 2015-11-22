@@ -14,17 +14,18 @@ const (
 	workDir = "ade_work"
 )
 
+var (
+	ade_dir = "def_ade_dir"
+	ade_src_dir = "def_ade_src_dir"
+)
+
 func list(args []string) {
 	fmt.Println("list called with... ", args)
-	_, file, _, _ := runtime.Caller(1)
-	fmt.Println("file is: ", file)
-	ade_dir := path.Dir(file)
-	ade_files_dir := path.Join(ade_dir, "src")
-	fmt.Printf("list go programs in dir %s\n", ade_files_dir)
-	files, err := ioutil.ReadDir(ade_files_dir)
+	fmt.Printf("list go programs in dir %s\n", ade_src_dir)
+	files, err := ioutil.ReadDir(ade_src_dir)
 	if err != nil {
 		fmt.Printf("error while read dir %s: %s\n",
-			ade_files_dir, err)
+			ade_src_dir, err)
 	}
 	for _, f := range files {
 		if f.IsDir() {
@@ -38,6 +39,18 @@ func list(args []string) {
 
 func load(args []string) {
 	fmt.Println("load called with... ", args)
+	if len(args) < 1 {
+		fmt.Printf("no argument for load...\n")
+		fmt.Printf("%s\n", USAGE)
+	}
+	file_path := path.Join(ade_src_dir, args[0])
+	src, err := ioutil.ReadFile(file_path)
+	if err != nil {
+		fmt.Printf("failed to read file: %s\n", file_path, err)
+		return
+	}
+
+	fmt.Printf("%s", src)
 }
 
 func save(args []string) {
@@ -62,4 +75,11 @@ func main() {
 	case "save":
 		save(args)
 	}
+}
+
+func init() {
+	_, file, _, _ := runtime.Caller(1)
+	ade_dir = path.Dir(file)
+	ade_src_dir = path.Join(ade_dir, "src")
+	fmt.Printf("file: %s, src dir: %s", file, ade_src_dir)
 }
