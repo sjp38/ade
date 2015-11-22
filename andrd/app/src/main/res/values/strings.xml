@@ -10,4 +10,5 @@
     <string name="action_save_as">Save as</string>
     <string name="action_format">Format</string>
     <string name="action_run">Run</string>
+    <string name="title_activity_exec">ExecActivity</string>
 </resources>
