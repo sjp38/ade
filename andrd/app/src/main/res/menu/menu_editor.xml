@@ -1,6 +1,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".EditorActivity">
+    <item android:id="@+id/action_new" android:title="@string/action_new"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_load" android:title="@string/action_load"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_save" android:title="@string/action_save"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_save_as" android:title="@string/action_save_as"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_format" android:title="@string/action_format"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_run" android:title="@string/action_run"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
+
 </menu>
