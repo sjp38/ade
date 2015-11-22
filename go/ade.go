@@ -69,7 +69,20 @@ func save(args []string) {
 	save_path := path.Join(ade_src_dir, args[0])
 	err := os.Rename(ade_tmp_src, save_path)
 	if err != nil {
-		adel.Printf("error while rename\n")
+		adel.Printf("error while rename: %s\n", err)
+		return
+	}
+}
+
+func remove(args []string) {
+	if len(args) < 1 {
+		adel.Printf("no argument to remove\n")
+		return
+	}
+	remove_path := path.Join(ade_src_dir, args[0])
+	err := os.Remove(remove_path)
+	if err != nil {
+		adel.Printf("error while remove: %s\n", err)
 		return
 	}
 }
@@ -91,6 +104,8 @@ func main() {
 		load(args)
 	case "save":
 		save(args)
+	case "remove":
+		remove(args)
 	}
 }
 
