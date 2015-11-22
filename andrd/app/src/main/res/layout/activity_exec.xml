@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Output"
+            android:text="Output:\n"
             android:id="@+id/output_textview"
             android:maxLines="50"
             android:scrollbars="vertical"

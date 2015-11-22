@@ -28,6 +28,7 @@ public class ExecActivity extends AppCompatActivity {
 
     TextView mOutputTextView = null;
     Handler mHandler = null;
+    static final int MSG_OUTPUT = 1;
 
     private String goBinPath(String binname) {
         return getBaseContext().getFilesDir().getAbsolutePath()
@@ -87,7 +88,8 @@ public class ExecActivity extends AppCompatActivity {
             pb.redirectErrorStream(true);
             goProcess = pb.start();
             Log.d(TAG, "goProcess started");
-            new CopyToAndroidLogThread(ADE_BIN + "-stdout/stderr", goProcess.getInputStream())
+            new CopyToAndroidLogThread(mHandler, ADE_BIN + "-stdout/stderr",
+                    goProcess.getInputStream())
                     .start();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -105,12 +107,21 @@ public class ExecActivity extends AppCompatActivity {
     }
 
     private static class CopyToAndroidLogThread extends Thread {
+        private final Handler mHandler;
         private final BufferedReader mBufIn;
         private final String mTag;
 
-        public CopyToAndroidLogThread(String tag, InputStream in) {
+        public CopyToAndroidLogThread(Handler handler, String tag, InputStream in) {
+            mHandler = handler;
             mBufIn = new BufferedReader(new InputStreamReader(in));
             mTag = tag;
+        }
+
+        private void sendOutput(String output) {
+            Message msg = mHandler.obtainMessage();
+            msg.what = MSG_OUTPUT;
+            msg.obj = output;
+            mHandler.sendMessage(msg);
         }
 
         @Override
@@ -122,13 +133,17 @@ public class ExecActivity extends AppCompatActivity {
                     line = mBufIn.readLine();
                 } catch (IOException e) {
                     Log.d(tag, "Exception: " + e.toString());
+                    sendOutput("\n[ade] Exception: " + e.toString() + "\n");
                     return;
                 }
                 if (line == null) {
+                    Log.d(tag, "terminated");
+                    sendOutput("\n[ade] terminated\n");
                     // EOF
                     return;
                 }
                 Log.d(tag, line);
+                sendOutput(line + "\n");
             }
         }
     }
@@ -138,15 +153,16 @@ public class ExecActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exec);
 
-        mOutputTextView =
+        mOutputTextView = (TextView)findViewById(R.id.output_textview);
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                if (msg.what != OUTPUT) {
+                if (msg.what != MSG_OUTPUT) {
                     Log.d(TAG, "unexpected message came to handler");
                     return;
                 }
-                String out_msg = (string) msg.obj;
+                String out_msg = (String) msg.obj;
+                mOutputTextView.append(out_msg);
 
                 super.handleMessage(msg);
             }
