@@ -94,8 +94,8 @@ func run(args []string) {
 		panic(err)
 	}
 	//goroot := "/home/sjpark/go"	for test on host
-	goroot := "/data/local/tmp/goroot"
-	//goroot := path.Join(ade_dir, "goroot")	for official version
+	//goroot := "/data/local/tmp/goroot"
+	goroot := path.Join(ade_dir, "goroot")
 	gobin := path.Join(goroot, "bin/go")
 	tmpdir := ade_tmp_dir
 	cmd := fmt.Sprintf("sh -c \"GOROOT=%s TMPDIR=%s %s run %s\"",

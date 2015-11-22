@@ -183,6 +183,21 @@ public class EditorActivity extends AppCompatActivity {
                 finish();
             }
         }
+
+        String tarPath = "/data/local/tmp/goroot.tar";
+        String untarPath = getBaseContext().getFilesDir().getAbsolutePath();
+        f = new File(untarPath + "/goroot");
+        if (!f.exists()) {
+            Log.d(TAG, "now untar...");
+            try {
+                Runtime.getRuntime().exec("cp " + tarPath + " " + untarPath + "/");
+                Log.d(TAG, "copy complete");
+                Runtime.getRuntime().exec("tar xf " + untarPath + "/goroot.tar -C " + untarPath);
+                Log.d(TAG, "did untar");
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to untar go");
+            }
+        }
     }
 
     @Override
