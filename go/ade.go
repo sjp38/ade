@@ -13,11 +13,16 @@ import (
 const (
 	USAGE = "Usage: ade <command> [argument]"
 	workDir = "ade_work"
+	TMP_DIR = "tmp"
+	TMP_SRC = "tmp.go"
 )
 
 var (
 	ade_dir = "def_ade_dir"
 	ade_src_dir = "def_ade_src_dir"
+	ade_tmp_dir = "def_ade_tmp_dir"
+	ade_tmp_src = "def_ade_tmp_src"
+
 	adel = log.New(os.Stderr, "", log.Ltime | log.Lshortfile)
 )
 
@@ -57,6 +62,16 @@ func load(args []string) {
 
 func save(args []string) {
 	adel.Printf("save called with... %s\n", args)
+	if len(args) < 1 {
+		adel.Printf("no argument to save\n")
+		return
+	}
+	save_path := path.Join(ade_src_dir, args[0])
+	err := os.Rename(ade_tmp_src, save_path)
+	if err != nil {
+		adel.Printf("error while rename\n")
+		return
+	}
 }
 
 func main() {
@@ -83,5 +98,8 @@ func init() {
 	_, file, _, _ := runtime.Caller(1)
 	ade_dir = path.Dir(file)
 	ade_src_dir = path.Join(ade_dir, "src")
-	adel.Printf("file: %s, src dir: %s", file, ade_src_dir)
+	ade_tmp_dir = path.Join(ade_dir, TMP_DIR)
+	ade_tmp_src = path.Join(ade_tmp_dir, TMP_SRC)
+	adel.Printf("file: %s, src dir: %s\ntmp dir: %s, tmp src: %s\n",
+			file, ade_src_dir, ade_tmp_dir, ade_tmp_src)
 }
