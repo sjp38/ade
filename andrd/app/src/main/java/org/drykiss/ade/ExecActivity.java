@@ -23,95 +23,55 @@ public class ExecActivity extends AppCompatActivity {
     public final static String EXTRA_CMD = "command";
     private String ADE_ASSET = "ade.arm";
     private String ADE_BIN = "ade";
+    private String ADE_BIN_PATH = "";
 
-    private Process goProcess = null;
+    private BinExecutor mExecutor = null;
+    private Process mProc = null;
 
     TextView mOutputTextView = null;
     Handler mHandler = null;
     static final int MSG_OUTPUT = 1;
 
-    private String goBinPath(String binname) {
+    private String adeBinPath() {
         return getBaseContext().getFilesDir().getAbsolutePath()
-                + "/" + binname;
+                + "/" + ADE_BIN;
     }
 
-    private void copyGoBinary() {
-        String dstFile = goBinPath(ADE_BIN);
-
-        Log.d(TAG, "Copy Go binary from APK to " + dstFile);
+    private void copyAdeGoBin() {
+        Log.d(TAG, "Copy Go binary from APK to " + ADE_BIN_PATH);
         try {
             InputStream is = getAssets().open(ADE_ASSET);
-            FileOutputStream fos = getBaseContext().openFileOutput(
-                    ADE_BIN, MODE_PRIVATE);
-            byte[] buf = new byte[8192];
-            int offset;
-            while ((offset = is.read(buf)) > 0) {
-                fos.write(buf, 0, offset);
-            }
-            is.close();
-            fos.flush();
-            fos.close();
-
-            Log.d(TAG, "wrote out " + dstFile);
-            Runtime.getRuntime().exec("chmod 0777 " + dstFile);
-            Log.d(TAG, "did chmod 0777 on " + dstFile);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Log.d(TAG, "interrupted from sleep");
-            }
-            Runtime.getRuntime().exec("sync");
+            mExecutor.copyExecBinary(is, ADE_BIN_PATH);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void executeAde() {
-        Toast.makeText(getApplicationContext(), "execute ade",
-                Toast.LENGTH_SHORT).show();
-        String adePath = goBinPath(ADE_BIN);
-
-        File f = new File(adePath);
+        File f = new File(ADE_BIN_PATH);
         if (!f.exists()) {
-            copyGoBinary();
+            copyAdeGoBin();
         }
-
-        if (goProcess != null) {
-            goProcess.destroy();
-            goProcess = null;
-        }
-
-        try {
-            ProcessBuilder pb = new ProcessBuilder();
-            pb.command(adePath);
-            Log.d(TAG, "start process with command " + adePath);
-            pb.redirectErrorStream(true);
-            goProcess = pb.start();
-            Log.d(TAG, "goProcess started");
-            new CopyToAndroidLogThread(mHandler, ADE_BIN + "-stdout/stderr",
-                    goProcess.getInputStream())
-                    .start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        mProc = mExecutor.executeBin(ADE_BIN_PATH, true);
+        new DisplayOutputThread(mHandler, ADE_BIN + "-stdout/err",
+                mProc.getInputStream())
+                .start();
     }
 
     public void killAde() {
         Toast.makeText(getApplicationContext(), "stop ade",
                 Toast.LENGTH_SHORT).show();
 
-        if (goProcess != null) {
-            goProcess.destroy();
-            goProcess = null;
-        }
+        mExecutor.stopExecution();
+        mProc = null;
     }
 
-    private static class CopyToAndroidLogThread extends Thread {
+    private static class DisplayOutputThread extends Thread {
         private final Handler mHandler;
         private final BufferedReader mBufIn;
         private final String mTag;
 
-        public CopyToAndroidLogThread(Handler handler, String tag, InputStream in) {
+        public DisplayOutputThread(Handler handler, String tag, InputStream in) {
             mHandler = handler;
             mBufIn = new BufferedReader(new InputStreamReader(in));
             mTag = tag;
@@ -153,6 +113,9 @@ public class ExecActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exec);
 
+        ADE_BIN_PATH = getBaseContext().getFilesDir().getAbsolutePath() + "/" + ADE_BIN;
+        mExecutor = new BinExecutor();
+
         mOutputTextView = (TextView)findViewById(R.id.output_textview);
         mHandler = new Handler() {
             @Override
@@ -169,10 +132,7 @@ public class ExecActivity extends AppCompatActivity {
         };
 
         Intent intent = getIntent();
-        String cmd = intent.getStringExtra(EXTRA_CMD);
         executeAde();
-
-        Log.d(TAG, "received command " + cmd);
     }
 
     @Override

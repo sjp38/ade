@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 public class EditorActivity extends AppCompatActivity {
     private final static String TAG = "ade_editor";
 
+    private BinExecutor mExecutor = null;
 
     private void doRun() {
         Intent intent = new Intent(this, ExecActivity.class);
