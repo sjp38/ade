@@ -2,7 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
+	"runtime"
+	"strings"
 )
 
 const (
@@ -12,6 +16,24 @@ const (
 
 func list(args []string) {
 	fmt.Println("list called with... ", args)
+	_, file, _, _ := runtime.Caller(1)
+	fmt.Println("file is: ", file)
+	ade_dir := path.Dir(file)
+	ade_files_dir := path.Join(ade_dir, "src")
+	fmt.Printf("list go programs in dir %s\n", ade_files_dir)
+	files, err := ioutil.ReadDir(ade_files_dir)
+	if err != nil {
+		fmt.Printf("error while read dir %s: %s\n",
+			ade_files_dir, err)
+	}
+	for _, f := range files {
+		if f.IsDir() {
+			continue
+		}
+		if strings.HasSuffix(f.Name(), ".go") {
+			fmt.Println(f.Name())
+		}
+	}
 }
 
 func load(args []string) {
