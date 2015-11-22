@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"runtime"
 	"strings"
 	"syscall"
 )
@@ -136,7 +135,7 @@ func main() {
 }
 
 func init() {
-	_, file, _, _ := runtime.Caller(1)
+	file := os.Args[0]
 	ade_dir = path.Dir(file)
 	ade_src_dir = path.Join(ade_dir, "src")
 	ade_tmp_dir = path.Join(ade_dir, TMP_DIR)
